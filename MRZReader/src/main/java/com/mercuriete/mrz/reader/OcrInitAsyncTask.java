@@ -42,19 +42,6 @@ import android.util.Log;
 final class OcrInitAsyncTask extends AsyncTask<String, String, Boolean> {
   private static final String TAG = OcrInitAsyncTask.class.getSimpleName();
 
-  /** Suffixes of required data files for Cube. */
-  private static final String[] CUBE_DATA_FILES = {
-    ".cube.bigrams",
-    ".cube.fold", 
-    ".cube.lm", 
-    ".cube.nn", 
-    ".cube.params", 
-    //".cube.size", // This file is not available for Hindi
-    ".cube.word-freq", 
-    ".tesseract_cube.nn", 
-    ".traineddata"
-  };
-
   private CaptureActivity activity;
   private Context context;
   private TessBaseAPI baseApi;
@@ -115,87 +102,13 @@ final class OcrInitAsyncTask extends AsyncTask<String, String, Boolean> {
    *          [0] Pathname for the directory for storing language data files to the SD card
    */
   protected Boolean doInBackground(String... params) {
-    // Check whether we need Cube data or Tesseract data.
-    // Example Cube data filename: "tesseract-ocr-3.01.eng.tar"
-    // Example Tesseract data filename: "eng.traineddata"
-    String destinationFilenameBase = languageCode + ".traineddata";
-    boolean isCubeSupported = false;
-    for (String s : CaptureActivity.CUBE_SUPPORTED_LANGUAGES) {
-      if (s.equals(languageCode)) {
-        isCubeSupported = true;   
-      }
-    }
-
-    // Check for, and create if necessary, folder to hold model data
-    String destinationDirBase = params[0]; // The storage directory, minus the
-                                           // "tessdata" subdirectory
-    File tessdataDir = new File(destinationDirBase + File.separator + "tessdata");
-    if (!tessdataDir.exists() && !tessdataDir.mkdirs()) {
-      Log.e(TAG, "Couldn't make directory " + tessdataDir);
-      return false;
-    }
-
-    // Create a reference to the file to save the download in
-    File downloadFile = new File(tessdataDir, destinationFilenameBase);
-
-    // Check if an incomplete download is present. If a *.download file is there, delete it and
-    // any (possibly half-unzipped) Tesseract and Cube data files that may be there.
-    File tesseractTestFile = new File(tessdataDir, languageCode + ".traineddata");
-
-    // Check whether all Cube data files have already been installed
-    boolean isAllCubeDataInstalled = false;
-    if (isCubeSupported) {
-      boolean isAFileMissing = false;
-      File dataFile;
-      for (String s : CUBE_DATA_FILES) {
-        dataFile = new File(tessdataDir.toString() + File.separator + languageCode + s);
-        if (!dataFile.exists()) {
-          isAFileMissing = true;
-        }
-      }
-      isAllCubeDataInstalled = !isAFileMissing;
-    }
-
-    // If language data files are not present, install them
-    boolean installSuccess = false;
-    if (!tesseractTestFile.exists()
-        || (isCubeSupported && !isAllCubeDataInstalled)) {
-      Log.d(TAG, "Language data for " + languageCode + " not found in " + tessdataDir.toString());
-      deleteCubeDataFiles(tessdataDir);
-
-      // Check assets for language data to install. If not present, download from Internet
-      try {
-        Log.d(TAG, "Checking for language data (" + destinationFilenameBase
-            + ") in application assets...");
-        // Check for a file like "eng.traineddata.zip" or "tesseract-ocr-3.01.eng.tar.zip"
-        installSuccess = installFromAssets(destinationFilenameBase, tessdataDir,
-            downloadFile);
-      } catch (IOException e) {
-        Log.e(TAG, "IOException", e);
-      } catch (Exception e) {
-        Log.e(TAG, "Got exception", e);
-      }
-
-
-    } else {
-      Log.d(TAG, "Language data for " + languageCode + " already installed in " 
-          + tessdataDir.toString());
-      installSuccess = true;
-    }
-
-    // Dismiss the progress dialog box, revealing the indeterminate dialog box behind it
-    try {
-      dialog.dismiss();
-    } catch (IllegalArgumentException e) {
-      // Catch "View not attached to window manager" error, and continue
-    }
 
       File f = new File(this.activity.getCacheDir()+"/tessdata/eng.traineddata");
       File folder = new File(this.activity.getCacheDir()+"/tessdata");
       if (!f.exists()) try {
 
           if (!f.exists() && !folder.mkdirs()) {
-              Log.e(TAG, "Couldn't make directory " + tessdataDir);
+              Log.e(TAG, "Couldn't make directory " + folder);
               return false;
           }
 
@@ -206,197 +119,41 @@ final class OcrInitAsyncTask extends AsyncTask<String, String, Boolean> {
           is.close();
       } catch (Exception e) { throw new RuntimeException(e); }
 
+    File f2 = new File(this.activity.getCacheDir()+"/tessdata/eng.user-patterns");
+    File folder2 = new File(this.activity.getCacheDir()+"/tessdata");
+    if (!f2.exists()) try {
+
+      InputStream is = this.activity.getAssets().open("tessdata/eng.user-patterns");
+      FileOutputStream fos = new FileOutputStream(f2);
+      copyFile(is,fos);
+      fos.close();
+      is.close();
+    } catch (Exception e) { throw new RuntimeException(e); }
+
 
       // Initialize the OCR engine
     if (baseApi.init(this.activity.getCacheDir() + File.separator, languageCode, ocrEngineMode)) {
+      try {
+        dialog.dismiss();
+      } catch (IllegalArgumentException e) {
+        // Catch "View not attached to window manager" error, and continue
+      }
       return true;
+
     }
     return false;
   }
 
-  /**
-   * Delete any existing data files for Cube that are present in the given directory. Files may be 
-   * partially uncompressed files left over from a failed install, or pre-v3.01 traineddata files.
-   * 
-   * @param tessdataDir
-   *          Directory to delete the files from
-   */
-  private void deleteCubeDataFiles(File tessdataDir) {
-    File badFile;
-    for (String s : CUBE_DATA_FILES) {
-      badFile = new File(tessdataDir.toString() + File.separator + languageCode + s);
-      if (badFile.exists()) {
-        Log.d(TAG, "Deleting existing file " + badFile.toString());
-        badFile.delete();
-      }
-      badFile = new File(tessdataDir.toString() + File.separator + "tesseract-ocr-3.01." 
-          + languageCode + ".tar");
-      if (badFile.exists()) {
-        Log.d(TAG, "Deleting existing file " + badFile.toString());
-        badFile.delete();
-      }
+
+  private boolean copyFile(InputStream in, OutputStream out) throws IOException {
+    byte[] buffer = new byte[1024];
+    int read;
+    while((read = in.read(buffer)) != -1){
+      out.write(buffer, 0, read);
     }
+    return true;
   }
 
-  /**
-   * Unzips the given Gzipped file to the given destination, and deletes the
-   * gzipped file.
-   * 
-   * @param zippedFile
-   *          The gzipped file to be uncompressed
-   * @param outFilePath
-   *          File to unzip to, including path
-   * @throws FileNotFoundException
-   * @throws IOException
-   */
-  private void gunzip(File zippedFile, File outFilePath)
-      throws FileNotFoundException, IOException {
-    int uncompressedFileSize = getGzipSizeUncompressed(zippedFile);
-    Integer percentComplete;
-    int percentCompleteLast = 0;
-    int unzippedBytes = 0;
-    final Integer progressMin = 0;
-    int progressMax = 100 - progressMin;
-    publishProgress("Uncompressing data for " + languageName + "...",
-        progressMin.toString());
-
-    // If the file is a tar file, just show progress to 50%
-    String extension = zippedFile.toString().substring(
-        zippedFile.toString().length() - 16);
-    if (extension.equals(".tar.gz.download")) {
-      progressMax = 50;
-    }
-    GZIPInputStream gzipInputStream = new GZIPInputStream(
-        new BufferedInputStream(new FileInputStream(zippedFile)));
-    OutputStream outputStream = new FileOutputStream(outFilePath);
-    BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(
-        outputStream);
-
-    final int BUFFER = 8192;
-    byte[] data = new byte[BUFFER];
-    int len;
-    while ((len = gzipInputStream.read(data, 0, BUFFER)) > 0) {
-      bufferedOutputStream.write(data, 0, len);
-      unzippedBytes += len;
-      percentComplete = (int) ((unzippedBytes / (float) uncompressedFileSize) * progressMax)
-          + progressMin;
-
-      if (percentComplete > percentCompleteLast) {
-        publishProgress("Uncompressing data for " + languageName
-            + "...", percentComplete.toString());
-        percentCompleteLast = percentComplete;
-      }
-    }
-    gzipInputStream.close();
-    bufferedOutputStream.flush();
-    bufferedOutputStream.close();
-
-    if (zippedFile.exists()) {
-      zippedFile.delete();
-    }
-  }
-
-  /**
-   * Returns the uncompressed size for a Gzipped file.
-   * 
-   * @param zipFile
-   *          Gzipped file to get the size for
-   * @return Size when uncompressed, in bytes
-   * @throws IOException
-   */
-  private int getGzipSizeUncompressed(File zipFile) throws IOException {
-    RandomAccessFile raf = new RandomAccessFile(zipFile, "r");
-    raf.seek(raf.length() - 4);
-    int b4 = raf.read();
-    int b3 = raf.read();
-    int b2 = raf.read();
-    int b1 = raf.read();
-    raf.close();
-    return (b1 << 24) | (b2 << 16) + (b3 << 8) + b4;
-  }
-
-  /**
-   * Untar the contents of a tar file into the given directory, ignoring the
-   * relative pathname in the tar file, and delete the tar file.
-   * 
-   * Uses jtar: http://code.google.com/p/jtar/
-   * 
-   * @param tarFile
-   *          The tar file to be untarred
-   * @param destinationDir
-   *          The directory to untar into
-   * @throws IOException
-   */
-  private void untar(File tarFile, File destinationDir) throws IOException {
-    Log.d(TAG, "Untarring...");
-    final int uncompressedSize = getTarSizeUncompressed(tarFile);
-    Integer percentComplete;
-    int percentCompleteLast = 0;
-    int unzippedBytes = 0;
-    final Integer progressMin = 50;
-    final int progressMax = 100 - progressMin;
-    publishProgress("Uncompressing data for " + languageName + "...",
-        progressMin.toString());
-
-    if (tarFile.exists()) {
-      tarFile.delete();
-    }
-  }
-  
-  /**
-   * Return the uncompressed size for a Tar file.
-   * 
-   * @param tarFile
-   *          The Tarred file
-   * @return Size when uncompressed, in bytes
-   * @throws IOException
-   */
-  private int getTarSizeUncompressed(File tarFile) throws IOException {
-    int size = 0;
-    return size;
-  }
-
-  /**
-   * Install a file from application assets to device external storage.
-   * 
-   * @param sourceFilename
-   *          File in assets to install
-   * @param modelRoot
-   *          Directory on SD card to install the file to
-   * @param destinationFile
-   *          File name for destination, excluding path
-   * @return True if installZipFromAssets returns true
-   * @throws IOException
-   */
-  private boolean installFromAssets(String sourceFilename, File modelRoot,
-      File destinationFile) throws IOException {
-    String extension = sourceFilename.substring(sourceFilename.lastIndexOf('.'), 
-        sourceFilename.length());
-    //try {
-      if (extension.equals(".traineddata")) {
-        return installTrainedFromAssets(sourceFilename, modelRoot, destinationFile);
-      } else {
-        throw new IllegalArgumentException("Extension " + extension
-            + " is unsupported.");
-      }
-
-  }
-  private boolean installTrainedFromAssets(String sourceFilename, File modelRoot, File destinationFile) {
-    Log.w("CACA",sourceFilename);
-    Log.w("CACA", modelRoot.getAbsolutePath());
-    Log.w("CACA",destinationFile.getAbsolutePath());
-      try {
-          InputStream in = new FileInputStream(new File(modelRoot ,sourceFilename));
-          OutputStream out = new FileOutputStream(destinationFile);
-
-          return copyFile(in,out);
-      } catch (FileNotFoundException e) {
-          e.printStackTrace();
-      } catch (IOException e) {
-          e.printStackTrace();
-      }
-      return false;
-  }
 
   /**
    * Update the dialog box with the latest incremental progress.
@@ -437,12 +194,4 @@ final class OcrInitAsyncTask extends AsyncTask<String, String, Boolean> {
     }
   }
 
-  private boolean copyFile(InputStream in, OutputStream out) throws IOException {
-    byte[] buffer = new byte[1024];
-    int read;
-    while((read = in.read(buffer)) != -1){
-      out.write(buffer, 0, read);
-    }
-    return true;
-  }
 }

@@ -24,7 +24,10 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 
+import com.googlecode.leptonica.android.Binarize;
+import com.googlecode.leptonica.android.Pix;
 import com.googlecode.leptonica.android.ReadFile;
+import com.googlecode.leptonica.android.WriteFile;
 import com.googlecode.tesseract.android.ResultIterator;
 import com.googlecode.tesseract.android.TessBaseAPI;
 import com.googlecode.tesseract.android.TessBaseAPI.PageIteratorLevel;
@@ -66,9 +69,9 @@ final class OcrRecognizeAsyncTask extends AsyncTask<Void, Void, Boolean> {
     //        bitmap = WriteFile.writeBitmap(thresholdedImage);
     //      }
     //      if (PERFORM_OTSU_THRESHOLDING) {
-    //        Pix thresholdedImage = Binarize.otsuAdaptiveThreshold(ReadFile.readBitmap(bitmap), 48, 48, 9, 9, 0.1F);
-    //        Log.e("OcrRecognizeAsyncTask", "thresholding completed. converting to bmp. size:" + bitmap.getWidth() + "x" + bitmap.getHeight());
-    //        bitmap = WriteFile.writeBitmap(thresholdedImage);
+            Pix thresholdedImage = Binarize.otsuAdaptiveThreshold(ReadFile.readBitmap(bitmap));
+            Log.e("OcrRecognizeAsyncTask", "thresholding completed. converting to bmp. size:" + bitmap.getWidth() + "x" + bitmap.getHeight());
+            bitmap = WriteFile.writeBitmap(thresholdedImage);
     //      }
     //      if (PERFORM_SOBEL_THRESHOLDING) {
     //        Pix thresholdedImage = Thresholder.sobelEdgeThreshold(ReadFile.readBitmap(bitmap), 64);
@@ -92,6 +95,15 @@ final class OcrRecognizeAsyncTask extends AsyncTask<Void, Void, Boolean> {
       ocrResult.setTextlineBoundingBoxes(baseApi.getTextlines().getBoxRects());
       ocrResult.setWordBoundingBoxes(baseApi.getWords().getBoxRects());
       ocrResult.setStripBoundingBoxes(baseApi.getStrips().getBoxRects());
+
+
+      String[] textResultTmpArr = textResult.split("\n");
+      textResult = "";
+      for (int i=0;i<textResultTmpArr.length;i++){
+        if(textResultTmpArr[i].length() > 10){
+          textResult += textResultTmpArr[i]+'\n';
+        }
+      }
 
       // Iterate through the results.
       final ResultIterator iterator = baseApi.getResultIterator();

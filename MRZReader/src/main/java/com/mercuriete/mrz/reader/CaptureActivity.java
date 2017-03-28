@@ -104,7 +104,7 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
   public static final boolean DEFAULT_TOGGLE_BEEP = false;
   
   /** Whether to initially show a looping, real-time OCR display. */
-  public static final boolean DEFAULT_TOGGLE_CONTINUOUS = false;
+  public static final boolean DEFAULT_TOGGLE_CONTINUOUS = true;
   
   /** Whether to initially reverse the image returned by the camera. */
   public static final boolean DEFAULT_TOGGLE_REVERSED_IMAGE = false;
@@ -113,7 +113,7 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
   public static final boolean DEFAULT_TOGGLE_TRANSLATION = true;
   
   /** Whether the light should be initially activated by default. */
-  public static final boolean DEFAULT_TOGGLE_LIGHT = false;
+  public static final boolean DEFAULT_TOGGLE_LIGHT = true;
 
   
   /** Flag to display the real-time recognition results at the top of the scanning screen. */
@@ -172,7 +172,7 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
   private String characterWhitelist;
   private ShutterButton shutterButton;
   private boolean isTranslationActive; // Whether we want to show translations
-  private boolean isContinuousModeActive; // Whether we are doing OCR in continuous mode
+  private boolean isContinuousModeActive = true; // Whether we are doing OCR in continuous mode
   private SharedPreferences prefs;
   private OnSharedPreferenceChangeListener listener;
   private ProgressDialog dialog; // for initOcr - language download & unzip
@@ -661,9 +661,9 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
     // with low memory that crash when running OCR with Cube, and prevent unwanted delays.
     if (ocrEngineMode == TessBaseAPI.OEM_CUBE_ONLY || ocrEngineMode == TessBaseAPI.OEM_TESSERACT_CUBE_COMBINED) {
       Log.d(TAG, "Disabling continuous preview");
-      isContinuousModeActive = false;
+      isContinuousModeActive = true;
       SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-      prefs.edit().putBoolean(PreferencesActivity.KEY_CONTINUOUS_PREVIEW, false);
+      prefs.edit().putBoolean(PreferencesActivity.KEY_CONTINUOUS_PREVIEW, true);
     }
     
     // Start AsyncTask to install language data and init OCR
@@ -748,6 +748,30 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
   void handleOcrContinuousDecode(OcrResult ocrResult) {
    
     lastResult = ocrResult;
+
+    String result = ocrResult.getText();
+    if(result != null && !"".equals(result)){
+      result.replaceAll(" ","");
+      String[] textResultTmpArr = result.split("\n");
+      result = "";
+      for (int i=0;i<textResultTmpArr.length;i++){
+        if(textResultTmpArr[i].length() > 10){
+          result += textResultTmpArr[i]+'\n';
+        }
+      }
+      ocrResult.setText(result);
+      if(ocrResult.getMeanConfidence() >= 50){
+        //do checksum
+        //if(mrz is ok)){
+        //    Toast.makeText(this,textResultTmpArr[1],Toast.LENGTH_LONG).show();
+        //  finish();
+        //}
+      }
+    }
+
+
+
+
     
     // Send an OcrResultText object to the ViewfinderView for text rendering
     viewfinderView.addResultText(new OcrResultText(ocrResult.getText(), 
@@ -1003,11 +1027,7 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
         prefs.edit().putInt(PreferencesActivity.KEY_HELP_VERSION_SHOWN, currentVersion).commit();
         Intent intent = new Intent(this, HelpActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
-        
-        // Show the default page on a clean install, and the what's new page on an upgrade.
-        String page = lastVersion == 0 ? HelpActivity.DEFAULT_PAGE : HelpActivity.WHATS_NEW_PAGE;
-        intent.putExtra(HelpActivity.REQUESTED_PAGE_KEY, page);
-        startActivity(intent);
+
         return true;
       }
     } catch (PackageManager.NameNotFoundException e) {
