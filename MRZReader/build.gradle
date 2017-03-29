@@ -20,4 +20,5 @@ android {
 
 dependencies {
     compile 'com.rmtheis:tess-two:6.2.0'
+    compile 'org.jmrtd:jmrtd:0.5.13'
 }
