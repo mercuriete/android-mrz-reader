@@ -20,6 +20,7 @@ package com.mercuriete.mrz.reader;
 import java.io.File;
 import java.io.IOException;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
@@ -38,6 +39,8 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.text.ClipboardManager;
 import android.text.SpannableStringBuilder;
 import android.text.style.CharacterStyle;
@@ -183,6 +186,8 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
     private static final int OPTIONS_SHARE_RECOGNIZED_TEXT_ID = Menu.FIRST + 2;
     private static final int OPTIONS_SHARE_TRANSLATED_TEXT_ID = Menu.FIRST + 3;
 
+    private static final int PERMISSIONS_REQUEST_CAMERA = 1;
+
     private CameraManager cameraManager;
     private CaptureActivityHandler handler;
     private ViewfinderView viewfinderView;
@@ -236,6 +241,8 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
         super.onCreate(icicle);
 
         checkFirstLaunch();
+
+        this.requestPermission();
 
         if (isFirstLaunch) {
             setDefaultPreferences();
@@ -358,9 +365,44 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
         isEngineReady = false;
     }
 
+    private void requestPermission() {
+        if (ContextCompat.checkSelfPermission(this,
+                Manifest.permission.CAMERA)
+                != PackageManager.PERMISSION_GRANTED) {
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                    Manifest.permission.CAMERA)) {
+            } else {
+                ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission.CAMERA},
+                        PERMISSIONS_REQUEST_CAMERA);
+            }
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case PERMISSIONS_REQUEST_CAMERA: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    Toast.makeText(this, "Permission granted", Toast.LENGTH_LONG).show();
+
+                } else {
+                    Toast.makeText(this, "Permission not granted", Toast.LENGTH_LONG).show();
+                    setResult(RESULT_CANCELED);
+                    finish();
+                }
+            }
+        }
+    }
+
     @Override
     protected void onResume() {
         super.onResume();
+        this.requestPermission();
+
         resetStatusView();
 
         String previousSourceLanguageCodeOcr = sourceLanguageCodeOcr;
@@ -620,44 +662,10 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
     }
 
     /**
-     * Finds the proper location on the SD card where we can save files.
+     * Finds the proper location on the cache dir where we can save files.
      */
     private File getStorageDirectory() {
-        //Log.d(TAG, "getStorageDirectory(): API level is " + Integer.valueOf(android.os.Build.VERSION.SDK_INT));
-
-        String state = null;
-        try {
-            state = Environment.getExternalStorageState();
-        } catch (RuntimeException e) {
-            Log.e(TAG, "Is the SD card visible?", e);
-            showErrorMessage("Error", "Required external storage (such as an SD card) is unavailable.");
-        }
-
-        if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
-
-            // We can read and write the media
-            //    	if (Integer.valueOf(android.os.Build.VERSION.SDK_INT) > 7) {
-            // For Android 2.2 and above
-
-            try {
-                return getExternalFilesDir(Environment.MEDIA_MOUNTED);
-            } catch (NullPointerException e) {
-                // We get an error here if the SD card is visible, but full
-                Log.e(TAG, "External storage is unavailable");
-                showErrorMessage("Error", "Required external storage (such as an SD card) is full or unavailable.");
-            }
-
-        } else if (Environment.MEDIA_MOUNTED_READ_ONLY.equals(state)) {
-            // We can only read the media
-            Log.e(TAG, "External storage is read-only");
-            showErrorMessage("Error", "Required external storage (such as an SD card) is unavailable for data storage.");
-        } else {
-            // Something else is wrong. It may be one of many other states, but all we need
-            // to know is we can neither read nor write
-            Log.e(TAG, "External storage is unavailable");
-            showErrorMessage("Error", "Required external storage (such as an SD card) is unavailable or corrupted.");
-        }
-        return null;
+        return this.getCacheDir();
     }
 
     /**
@@ -811,14 +819,14 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
             }
             result = result.replaceAll(" ", "");
             ocrResult.setText(result);
-            if (ocrResult.getMeanConfidence() >= 50 && textResultTmpArr.length >=2 && textResultTmpArr.length <=3) {
+            if (ocrResult.getMeanConfidence() >= 50 && textResultTmpArr.length >= 2 && textResultTmpArr.length <= 3) {
                 try {
                     MRZInfo mrzInfo = new MRZInfo(result);
-                    if (mrzInfo.toString().equals(result)){
+                    if (mrzInfo.toString().equals(result)) {
                         Toast.makeText(this, mrzInfo.toString(), Toast.LENGTH_LONG).show();
                         Intent returnIntent = new Intent();
-                        returnIntent.putExtra(MRZ_RESULT,mrzInfo);
-                        setResult(Activity.RESULT_OK,returnIntent);
+                        returnIntent.putExtra(MRZ_RESULT, mrzInfo);
+                        setResult(Activity.RESULT_OK, returnIntent);
                         finish();
                     }
                 } catch (IllegalStateException | IllegalArgumentException e) {
