@@ -18,6 +18,7 @@
 package com.mercuriete.mrz.reader;
 
 import com.googlecode.leptonica.android.Binarize;
+import com.googlecode.leptonica.android.Convert;
 import com.googlecode.leptonica.android.Pix;
 import com.googlecode.leptonica.android.Pixa;
 import com.googlecode.leptonica.android.ReadFile;
@@ -104,7 +105,7 @@ final class DecodeHandler extends Handler {
       return;
     }
     bitmap = source.renderCroppedGreyscaleBitmap();
-    Pix thresholdedImage = Binarize.otsuAdaptiveThreshold(ReadFile.readBitmap(bitmap));
+    Pix thresholdedImage = Binarize.otsuAdaptiveThreshold(Convert.convertTo8(ReadFile.readBitmap(bitmap)));
     Log.e("OcrRecognizeAsyncTask", "thresholding completed. converting to bmp. size:" + bitmap.getWidth() + "x" + bitmap.getHeight());
     bitmap = WriteFile.writeBitmap(thresholdedImage);
 
