@@ -5,19 +5,15 @@ jdk:
 
 android:
   components:
-    - platform-tools-26.0.2
     - tools
-    - build-tools-26.0.2
-    - android-25
+    - build-tools-29.0.0
+    - extra-android-m2repository
 
-    # Additional components
-    # - extra-google-google_play_services
-    # - extra-google-m2repository
-    # - extra-android-m2repository
-    # - addon-google_apis-google-19
+licenses:
+  - 'android-sdk-license-.+'
 
-    # Specify at least one system image,
-    # if you need to run emulator(s) during your tests
-    # - sys-img-armeabi-v7a-android-22
-    # - sys-img-armeabi-v7a-android-17
+before_install:
+  - yes | sdkmanager "platforms;android-29"
 
+script:
+  - ./gradlew assembleRelease
