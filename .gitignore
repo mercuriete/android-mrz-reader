@@ -1,8 +1,5 @@
 .idea/
 .gradle/
-gradle/
-gradlew
-gradlew.bat
 build/
 android-mrz-reader.iml
 local.properties

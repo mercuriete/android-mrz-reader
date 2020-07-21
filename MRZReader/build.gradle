@@ -1,13 +1,13 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 25
-    buildToolsVersion '26.0.2'
+    compileSdkVersion 29
+    buildToolsVersion '29.0.2'
 
     defaultConfig {
         applicationId "com.mercuriete.mrz.reader"
         minSdkVersion 17
-        targetSdkVersion 25
+        targetSdkVersion 29
     }
 
     buildTypes {
@@ -26,7 +26,7 @@ android {
 }
 
 dependencies {
-    compile 'com.android.support:support-compat:25.3.1'
-    compile 'com.rmtheis:tess-two:6.2.0'
-    compile 'org.jmrtd:jmrtd:0.5.13'
+    implementation 'androidx.core:core:1.0.0'
+    implementation 'com.rmtheis:tess-two:6.2.0'
+    implementation 'org.jmrtd:jmrtd:0.5.13'
 }
