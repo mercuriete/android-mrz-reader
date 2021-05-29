@@ -1,0 +1,22 @@
+name: gitleaks
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  gitleaks:
+    name: gitleaks
+    runs-on: ubuntu-latest
+    timeout-minutes: 1
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: '0'
+      - name: gitleaks-action
+        uses: zricethezav/gitleaks-action@v1.6.0
