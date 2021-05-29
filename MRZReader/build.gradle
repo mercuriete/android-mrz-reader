@@ -1,5 +1,21 @@
 apply plugin: 'com.android.application'
 
+apply plugin: 'com.hiya.jacoco-android'
+
+jacoco {
+    toolVersion = "0.8.4"
+}
+
+jacocoAndroidUnitTestReport {
+    // uncomment to see the report locally on html format
+    // html.enabled true
+    xml.enabled true
+}
+
+tasks.withType(Test) {
+    jacoco.includeNoLocationClasses = true
+}
+
 android {
     compileSdkVersion 29
     buildToolsVersion '29.0.2'
@@ -8,6 +24,8 @@ android {
         applicationId "com.mercuriete.mrz.reader"
         minSdkVersion 17
         targetSdkVersion 29
+        versionCode project.version_code
+        versionName project.version_name
     }
 
     buildTypes {
