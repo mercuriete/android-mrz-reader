@@ -17,9 +17,6 @@
 
 package com.mercuriete.mrz.reader;
 
-import java.io.File;
-import java.io.IOException;
-
 import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -38,8 +35,6 @@ import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 import android.text.ClipboardManager;
 import android.text.SpannableStringBuilder;
 import android.text.style.CharacterStyle;
@@ -62,12 +57,18 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.googlecode.tesseract.android.TessBaseAPI;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
+import com.googlecode.tesseract.android.TessBaseAPI;
 import com.mercuriete.mrz.reader.camera.CameraManager;
 import com.mercuriete.mrz.reader.camera.ShutterButton;
+import com.mercuriete.mrz.reader.utils.MRZCheckUtil;
 
 import org.jmrtd.lds.icao.MRZInfo;
+
+import java.io.File;
+import java.io.IOException;
 
 /**
  * This activity opens the camera and does the actual scanning on a background thread. It draws a
@@ -820,8 +821,8 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
             ocrResult.setText(result);
             if (ocrResult.getMeanConfidence() >= 50 && textResultTmpArr.length >= 2 && textResultTmpArr.length <= 3) {
                 try {
-                    MRZInfo mrzInfo = new MRZInfo(result);
-                    if (mrzInfo.toString().equals(result)) {
+                    if (MRZCheckUtil.check(result)) {
+                        MRZInfo mrzInfo = new MRZInfo(result);
                         Toast.makeText(this, mrzInfo.toString(), Toast.LENGTH_LONG).show();
                         Intent returnIntent = new Intent();
                         returnIntent.putExtra(MRZ_RESULT, mrzInfo);
