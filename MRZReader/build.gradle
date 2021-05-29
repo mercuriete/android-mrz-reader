@@ -17,13 +17,12 @@ tasks.withType(Test) {
 }
 
 android {
-    compileSdkVersion 29
-    buildToolsVersion '29.0.2'
-
+    compileSdkVersion 30
+    buildToolsVersion "30.0.3"
     defaultConfig {
         applicationId "com.mercuriete.mrz.reader"
         minSdkVersion 17
-        targetSdkVersion 29
+        targetSdkVersion 30
         versionCode project.version_code
         versionName project.version_name
     }
@@ -44,7 +43,7 @@ android {
 }
 
 dependencies {
-    implementation 'androidx.core:core:1.3.1'
+    implementation 'androidx.core:core:1.5.0'
     implementation 'com.rmtheis:tess-two:9.1.0'
     implementation 'org.jmrtd:jmrtd:0.7.19'
 }
