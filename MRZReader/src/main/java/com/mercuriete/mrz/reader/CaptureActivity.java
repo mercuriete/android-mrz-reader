@@ -117,7 +117,7 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
     /**
      * Whether to initially disable continuous-picture and continuous-video focus modes.
      */
-    public static final boolean DEFAULT_DISABLE_CONTINUOUS_FOCUS = true;
+    public static final boolean DEFAULT_DISABLE_CONTINUOUS_FOCUS = false;
 
     /**
      * Whether to beep by default when the shutter button is pressed.
