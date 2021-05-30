@@ -809,7 +809,7 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
 
         String result = ocrResult.getText();
         if (result != null && !"".equals(result)) {
-            result.replaceAll(" ", "");
+            result = result.replaceAll(" ", "");
             String[] textResultTmpArr = result.split("\n");
             result = "";
             for (int i = 0; i < textResultTmpArr.length; i++) {
@@ -817,7 +817,6 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
                     result += textResultTmpArr[i] + '\n';
                 }
             }
-            result = result.replaceAll(" ", "");
             ocrResult.setText(result);
             if (ocrResult.getMeanConfidence() >= 50 && textResultTmpArr.length >= 2 && textResultTmpArr.length <= 3) {
                 try {
