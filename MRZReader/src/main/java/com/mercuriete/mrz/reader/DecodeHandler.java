@@ -183,7 +183,6 @@ final class DecodeHandler extends Handler {
 //      }
     } catch (RuntimeException e) {
       Log.e("OcrRecognizeAsyncTask", "Caught RuntimeException in request to Tesseract. Setting state to CONTINUOUS_STOPPED.");
-      e.printStackTrace();
       try {
         baseApi.clear();
         activity.stopHandler();

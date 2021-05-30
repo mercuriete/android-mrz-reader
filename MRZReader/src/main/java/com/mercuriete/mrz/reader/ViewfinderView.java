@@ -30,6 +30,7 @@ import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.Paint.Style;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
 
 /**
@@ -212,7 +213,7 @@ public final class ViewfinderView extends View {
                 isWordBlank = false;
               }
             } catch (ArrayIndexOutOfBoundsException e) {
-              e.printStackTrace();
+              Log.e("CACA", "out of bounds", e);
             }
 
             // Only draw if word has characters
