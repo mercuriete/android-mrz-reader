@@ -114,9 +114,9 @@ public final class ViewfinderView extends View {
     // Draw the exterior (i.e. outside the framing rect) darkened
     paint.setColor(maskColor);
     canvas.drawRect(0, 0, width, frame.top, paint);
-    canvas.drawRect(0, frame.top, frame.left, frame.bottom + 1, paint);
-    canvas.drawRect(frame.right + 1, frame.top, width, frame.bottom + 1, paint);
-    canvas.drawRect(0, frame.bottom + 1, width, height, paint);
+    canvas.drawRect(0, frame.top, frame.left, frame.bottom + 1.0f, paint);
+    canvas.drawRect(frame.right + 1.0f, frame.top, width, frame.bottom + 1.0f, paint);
+    canvas.drawRect(0, frame.bottom + 1.0f, width, height, paint);
 
     // If we have an OCR result, overlay its information on the viewfinder.
     if (resultText != null) {
@@ -351,21 +351,21 @@ public final class ViewfinderView extends View {
     paint.setAlpha(0);
     paint.setStyle(Style.FILL);
     paint.setColor(frameColor);
-    canvas.drawRect(frame.left, frame.top, frame.right + 1, frame.top + 2, paint);
-    canvas.drawRect(frame.left, frame.top + 2, frame.left + 2, frame.bottom - 1, paint);
-    canvas.drawRect(frame.right - 1, frame.top, frame.right + 1, frame.bottom - 1, paint);
-    canvas.drawRect(frame.left, frame.bottom - 1, frame.right + 1, frame.bottom + 1, paint);
+    canvas.drawRect(frame.left, frame.top, frame.right + 1.0f, frame.top + 2.0f, paint);
+    canvas.drawRect(frame.left, frame.top + 2.0f, frame.left + 2.0f, frame.bottom - 1.0f, paint);
+    canvas.drawRect(frame.right - 1.0f, frame.top, frame.right + 1.0f, frame.bottom - 1.0f, paint);
+    canvas.drawRect(frame.left, frame.bottom - 1.0f, frame.right + 1.0f, frame.bottom + 1.0f, paint);
 
     // Draw the framing rect corner UI elements
     paint.setColor(cornerColor);
-    canvas.drawRect(frame.left - 15, frame.top - 15, frame.left + 15, frame.top, paint);
-    canvas.drawRect(frame.left - 15, frame.top, frame.left, frame.top + 15, paint);
-    canvas.drawRect(frame.right - 15, frame.top - 15, frame.right + 15, frame.top, paint);
-    canvas.drawRect(frame.right, frame.top - 15, frame.right + 15, frame.top + 15, paint);
-    canvas.drawRect(frame.left - 15, frame.bottom, frame.left + 15, frame.bottom + 15, paint);
-    canvas.drawRect(frame.left - 15, frame.bottom - 15, frame.left, frame.bottom, paint);
-    canvas.drawRect(frame.right - 15, frame.bottom, frame.right + 15, frame.bottom + 15, paint);
-    canvas.drawRect(frame.right, frame.bottom - 15, frame.right + 15, frame.bottom + 15, paint);  
+    canvas.drawRect(frame.left - 15.0f, frame.top - 15.0f, frame.left + 15.0f, frame.top, paint);
+    canvas.drawRect(frame.left - 15.0f, frame.top, frame.left, frame.top + 15.0f, paint);
+    canvas.drawRect(frame.right - 15.0f, frame.top - 15.0f, frame.right + 15.0f, frame.top, paint);
+    canvas.drawRect(frame.right, frame.top - 15.0f, frame.right + 15.0f, frame.top + 15.0f, paint);
+    canvas.drawRect(frame.left - 15.0f, frame.bottom, frame.left + 15.0f, frame.bottom + 15.0f, paint);
+    canvas.drawRect(frame.left - 15.0f, frame.bottom - 15.0f, frame.left, frame.bottom, paint);
+    canvas.drawRect(frame.right - 15.0f, frame.bottom, frame.right + 15.0f, frame.bottom + 15.0f, paint);
+    canvas.drawRect(frame.right, frame.bottom - 15.0f, frame.right + 15.0f, frame.bottom + 15.0f, paint);
 
 
     // Request another update at the animation interval, but don't repaint the entire viewfinder mask.
