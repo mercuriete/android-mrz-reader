@@ -822,7 +822,7 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
                 try {
                     if (MRZCheckUtil.check(result)) {
                         MRZInfo mrzInfo = new MRZInfo(result);
-                        Toast.makeText(this, mrzInfo.toString(), Toast.LENGTH_LONG).show();
+                        Toast.makeText(this, mrzInfo.toString().trim(), Toast.LENGTH_LONG).show();
                         Intent returnIntent = new Intent();
                         returnIntent.putExtra(MRZ_RESULT, mrzInfo);
                         setResult(Activity.RESULT_OK, returnIntent);
