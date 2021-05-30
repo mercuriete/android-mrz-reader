@@ -159,6 +159,8 @@ final class CaptureActivityHandler extends Handler {
     } catch (InterruptedException e) {
       Log.w(TAG, "Caught InterruptedException in quitSyncronously()", e);
       // continue
+      // Restore interrupted state...
+      Thread.currentThread().interrupt();
     } catch (RuntimeException e) {
       Log.w(TAG, "Caught RuntimeException in quitSyncronously()", e);
       // continue
