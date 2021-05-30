@@ -121,7 +121,6 @@ final class OcrRecognizeAsyncTask extends AsyncTask<Void, Void, Boolean> {
 
     } catch (RuntimeException e) {
       Log.e("OcrRecognizeAsyncTask", "Caught RuntimeException in request to Tesseract. Setting state to CONTINUOUS_STOPPED.");
-      e.printStackTrace();
       try {
         baseApi.clear();
         activity.stopHandler();
