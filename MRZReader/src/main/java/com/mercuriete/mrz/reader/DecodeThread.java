@@ -42,6 +42,8 @@ final class DecodeThread extends Thread {
       handlerInitLatch.await();
     } catch (InterruptedException ie) {
       // continue?
+      // Restore interrupted state...
+      Thread.currentThread().interrupt();
     }
     return handler;
   }
