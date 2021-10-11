@@ -14,6 +14,7 @@ jacocoAndroidUnitTestReport {
 
 tasks.withType(Test) {
     jacoco.includeNoLocationClasses = true
+    jacoco.excludes = ['jdk.internal.*']
 }
 
 android {
@@ -21,7 +22,7 @@ android {
     buildToolsVersion "30.0.3"
     defaultConfig {
         applicationId "com.mercuriete.mrz.reader"
-        minSdkVersion 17
+        minSdkVersion 21
         targetSdkVersion 30
         versionCode project.version_code
         versionName project.version_name
@@ -39,6 +40,10 @@ android {
         disable 'InvalidPackage'
         textReport true
         textOutput 'stdout'
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
     }
 }
 

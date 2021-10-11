@@ -1,6 +1,16 @@
-# https://docs.microsoft.com/azure/devops/pipelines/ecosystems/android
+# Copyright (c) Microsoft Corporation
+# SPDX-License-Identifier: MIT
+
+# Copy pasted from:
+# https://github.com/MicrosoftDocs/pipelines-android/blob/master/azure-pipelines.yml
+
+# Android
+# Build your Android project with Gradle.
+# Add steps that test, sign, and distribute the APK, save build artifacts, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/languages/android
+
 pool:
-  vmImage: 'macOS-10.14'
+  vmImage: 'macos-latest'
 
 steps:
   - task: Gradle@2
@@ -8,6 +18,21 @@ steps:
       workingDirectory: ''
       gradleWrapperFile: 'gradlew'
       gradleOptions: '-Xmx3072m'
-      publishJUnitResults: false
-      testResultsFiles: '**/TEST-*.xml'
+      javaHomeOption: 'JDKVersion'
+      jdkVersionOption: '1.11'
+      jdkArchitectureOption: 'x64'
       tasks: 'assembleDebug'
+    displayName: gradlew assembleDebug
+
+  - task: CopyFiles@2
+    inputs:
+      contents: '**/*.apk'
+      targetFolder: '$(build.artifactStagingDirectory)'
+    displayName: Copy .apk files to artifact staging directory
+
+  - task: PublishBuildArtifacts@1
+    inputs:
+      pathToPublish: '$(build.artifactStagingDirectory)'
+      artifactName: 'drop'
+      artifactType: 'container'
+    displayName: Publish artifacts
