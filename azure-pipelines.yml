@@ -30,7 +30,7 @@ steps:
       targetFolder: '$(build.artifactStagingDirectory)'
     displayName: Copy .apk files to artifact staging directory
 
-  - task: PublishBuildArtifacts@1.200.0
+  - task: PublishBuildArtifacts@1.211.0
     inputs:
       pathToPublish: '$(build.artifactStagingDirectory)'
       artifactName: 'drop'
