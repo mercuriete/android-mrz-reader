@@ -13,7 +13,7 @@ pool:
   vmImage: 'macos-latest'
 
 steps:
-  - task: Gradle@2.208.0
+  - task: Gradle@2.211.0
     inputs:
       workingDirectory: ''
       gradleWrapperFile: 'gradlew'
