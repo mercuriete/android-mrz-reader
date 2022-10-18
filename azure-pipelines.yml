@@ -24,7 +24,7 @@ steps:
       tasks: 'assembleDebug'
     displayName: gradlew assembleDebug
 
-  - task: CopyFiles@2.209.0
+  - task: CopyFiles@2.211.0
     inputs:
       contents: '**/*.apk'
       targetFolder: '$(build.artifactStagingDirectory)'
