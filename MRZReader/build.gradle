@@ -49,5 +49,5 @@ android {
 dependencies {
     implementation 'androidx.core:core:1.8.0'
     implementation 'com.rmtheis:tess-two:9.1.0'
-    implementation 'org.jmrtd:jmrtd:0.7.38'
+    implementation 'org.jmrtd:jmrtd:0.7.39'
 }
