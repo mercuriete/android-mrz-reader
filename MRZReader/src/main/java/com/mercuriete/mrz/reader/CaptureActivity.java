@@ -344,7 +344,9 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
                                     // Adjusting bottom side: event falls within BUFFER pixels of bottom side, and between left and right side limits
                                     cameraManager.adjustFramingRect(0, 2 * (currentY - lastY));
                                     viewfinderView.removeResultText();
-                                }
+                                } else {
+                                    cameraManager.toggleTorch();
+}
                             }
                         } catch (NullPointerException e) {
                             Log.e(TAG, "Framing rect not available", e);

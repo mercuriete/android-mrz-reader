@@ -126,6 +126,11 @@ final class CameraConfigurationManager {
         return screenResolution;
     }
 
+    void toggleTorch(Camera camera) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        boolean currentSetting = prefs.getBoolean(PreferencesActivity.KEY_TOGGLE_LIGHT, false);
+        setTorch(camera,!currentSetting);
+    }
     void setTorch(Camera camera, boolean newSetting) {
         Camera.Parameters parameters = camera.getParameters();
         doSetTorch(parameters, newSetting);

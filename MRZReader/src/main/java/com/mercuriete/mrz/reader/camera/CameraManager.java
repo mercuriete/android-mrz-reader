@@ -165,6 +165,13 @@ public final class CameraManager {
   }
   
   /**
+   * Asks the camera hardware to switch Torch
+   */
+  public synchronized void toggleTorch() {
+  	configManager.toggleTorch(camera);
+  }
+  
+  /**
    * Calculates the framing rect which the UI should draw to show the user where to place the
    * barcode. This target helps with alignment as well as forces the user to hold the device
    * far enough away to ensure the image will be in focus.
